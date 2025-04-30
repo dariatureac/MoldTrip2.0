@@ -1,3 +1,55 @@
 <resources>
     <string name="app_name">FirebaseAlgorithmTest</string>
+
+   <!-- <string name="app_name">MoldTripApp</string> -->
+    <string name="my_button">My Button</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="mold_trip_text">MoldTrip</string>
+
+
+    <string name="chisinau_parks_text">Parks</string>
+    <string name="chisinau_parks_1_text">Public Garden Stephen the Great</string>
+    <string name="chisinau_parks_2_text">National Botanical Garden</string>
+    <string name="chisinau_parks_3_text">Afghanistan Park</string>
+    <string name="chisinau_parks_4_text">La Izvor Park</string>
+    <string name="chisinau_parks_5_text">Râscani Forest-Park</string>
+    <string name="chisinau_parks_6_text">Alunelul Public Garden</string>
+    <string name="chisinau_parks_7_text">Cathedral Park</string>
+    <string name="chisinau_parks_8_text">The Valley of the Mills Park</string>
+    <string name="chisinau_parks_9_text">Dendrarium Park</string>
+    <string name="chisinau_parks_10_text">Rose Valley Park</string>
+    <string name="chisinau_museums_1_text">Army Museum of Chișinău / Military Museum</string>
+    <string name="chisinau_museums_2_text">Exhibition Centre “Constantin Brancusi”</string>
+    <string name="chisinau_museums_3_text">National History Museum of Moldova</string>
+    <string name="chisinau_museums_4_text">National Museum of Fine Arts of Moldova</string>
+    <string name="chisinau_museums_5_text">National Museum of Ethnography &amp; Natural History</string>
+    <string name="chisinau_museums_6_text">Chisinau City History Museum</string>
+    <string name="chisinau_museums_7_text">Alexander Pushkin House-Museum</string>
+    <string name="chisinau_monuments_1_text">Alley of Classics</string>
+    <string name="chisinau_monuments_2_text">Eternity Memorial Complex</string>
+    <string name="chisinau_monuments_3_text">Сornerstone of Chisinau</string>
+    <string name="chisinau_monuments_4_text">Memorial to Victims of Stalinist Repression</string>
+    <string name="chisinau_monuments_5_text">Stephen the Great Monument</string>
+    <string name="chisinau_churches_1_text">Măzărache Church</string>
+    <string name="chisinau_churches_2_text">Transfiguration Church</string>
+    <string name="chisinau_churches_3_text">St. Teodora de la Sihla Church</string>
+    <string name="chisinau_churches_4_text">Cathedral of Divine Providence</string>
+    <string name="chisinau_churches_5_text">Cathedral of Christ s Nativity</string>
+    <string name="chisinau_churches_6_text">Ciuflea Monastery</string>
+
+
+    <string name="chisinau_museums_text">Museums</string>
+    <string name="chisinau_monuments_text">Monuments</string>
+    <string name="chisinau_churches_text">Churches and Monasteries</string>
+
+    <string name="chisinau_text">Chisinau</string>
+    <string name="northern_text">Northern Moldova</string>
+    <string name="southern_text">Southern Moldova</string>
+    <string name="central_text">Central Moldova</string>
+    <string name="orhei_text">Old Orhei</string>
+    <string name="transnistria_text">Transnistrian region</string>
+
+    <string name="regions_title">Regions</string>
+
 </resources>
