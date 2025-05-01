@@ -1,10 +1,12 @@
 package com.example.firebasealgorithmtest
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -15,11 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.colorResource
 import androidx.annotation.StringRes
 
 class RegionsActivity : ComponentActivity() {
@@ -48,7 +51,6 @@ fun RegionsScreen() {
             modifier = Modifier.padding(vertical = 4.dp)
         )
 
-        // Rows of regions
         RegionRow(
             listOf(
                 RegionItem(R.drawable.chisinau, R.string.chisinau_text),
@@ -70,8 +72,7 @@ fun RegionsScreen() {
             )
         )
 
-        // Next button under the images
-        Spacer(modifier = Modifier.height(16.dp)) // Space between content and button
+        Spacer(modifier = Modifier.height(16.dp))
         NextButton()
     }
 }
@@ -94,47 +95,92 @@ fun RegionRow(items: List<RegionItem>) {
 
 @Composable
 fun RegionItemCard(item: RegionItem, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+
     Box(
         modifier = modifier
-            .height(160.dp) // **Set the height of the image container**
-            .clip(RoundedCornerShape(8.dp))
+            .height(160.dp)
+            .background(
+                color = Color.Transparent,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = Color.Gray,
+                shape = RoundedCornerShape(8.dp)
+            )
     ) {
         Image(
             painter = painterResource(id = item.imageRes),
             contentDescription = stringResource(id = item.labelRes),
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .fillMaxSize() // Ensure the image fills its container
+                .fillMaxSize()
+                .clip(RoundedCornerShape(8.dp)) // Rounded corners for image
         )
-        Text(
-            text = stringResource(id = item.labelRes),
-            color = Color.Black,
-            fontSize = 14.sp,
+
+        Button(
+            onClick = {
+                if (item.labelRes == R.string.chisinau_text) {
+                    context.startActivity(Intent(context, ChisinauActivity::class.java))
+                }
+                if (item.labelRes == R.string.northern_text) {
+                    context.startActivity(Intent(context, NorthernActivity::class.java))
+                }
+                if (item.labelRes == R.string.southern_text) {
+                    context.startActivity(Intent(context, SouthernActivity::class.java))
+                }
+                if (item.labelRes == R.string.central_text) {
+                    context.startActivity(Intent(context, CentralActivity::class.java))
+                }
+                if (item.labelRes == R.string.orhei_text) {
+                    context.startActivity(Intent(context, OrheiActivity::class.java))
+                }
+                if (item.labelRes == R.string.transnistria_text) {
+                    context.startActivity(Intent(context, TransnistriaActivity::class.java))
+                }
+            },
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(6.dp)
-                .background(Color.White.copy(alpha = 0.7f), RoundedCornerShape(4.dp))
-                .padding(horizontal = 6.dp, vertical = 2.dp)
-        )
+                .padding(8.dp),
+            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                containerColor = Color.LightGray,
+                contentColor = Color.Black
+            ),
+            shape = RoundedCornerShape(50)
+        ) {
+            Text(
+                text = stringResource(id = item.labelRes),
+                fontSize = 12.sp,
+                color = Color.Black,
+                maxLines = 1
+            )
+        }
     }
 }
 
 @Composable
 fun NextButton() {
+    val context = LocalContext.current
+
     Button(
-        onClick = { /* Add navigation logic here */ },
+        onClick = {
+            // Navigate to MainActivity when "Finish" is clicked
+            val intent = Intent(context, MainActivity::class.java)
+            context.startActivity(intent)
+        },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp) // Optional: To make the button a bit smaller and spaced from edges
-            .height(50.dp), // Adjust button height
+            .padding(10.dp)
+            .height(50.dp),
         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-            containerColor = colorResource(id = R.color.purple), // Use colorResource for purple
-            contentColor = colorResource(id = R.color.green) // Use colorResource for green
+            containerColor = colorResource(id = R.color.purple),
+            contentColor = colorResource(id = R.color.green)
         ),
         shape = RoundedCornerShape(50)
     ) {
         Text(
-            text = "Next",
+            text = "Finish", // Change the button text to "Finish"
             fontSize = 16.sp
         )
     }
