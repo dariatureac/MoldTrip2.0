@@ -1,3 +1,102 @@
 <resources>
     <string name="app_name">FirebaseAlgorithmTest</string>
+
+   <!-- <string name="app_name">MoldTripApp</string> -->
+    <string name="my_button">My Button</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="mold_trip_text">MoldTrip</string>
+
+
+    <string name="chisinau_parks_text">Parks</string>
+    <string name="chisinau_parks_1_text">Public Garden Stephen the Great</string>
+    <string name="chisinau_parks_2_text">National Botanical Garden</string>
+    <string name="chisinau_parks_3_text">Afghanistan Park</string>
+    <string name="chisinau_parks_4_text">La Izvor Park</string>
+    <string name="chisinau_parks_5_text">Râscani Forest-Park</string>
+    <string name="chisinau_parks_6_text">Alunelul Public Garden</string>
+    <string name="chisinau_parks_7_text">Cathedral Park</string>
+    <string name="chisinau_parks_8_text">The Valley of the Mills Park</string>
+    <string name="chisinau_parks_9_text">Dendrarium Park</string>
+    <string name="chisinau_parks_10_text">Rose Valley Park</string>
+
+    <string name="chisinau_museums_1_text">Army Museum of Chișinău / Military Museum</string>
+    <string name="chisinau_museums_2_text">Exhibition Centre “Constantin Brancusi”</string>
+    <string name="chisinau_museums_3_text">National History Museum of Moldova</string>
+    <string name="chisinau_museums_4_text">National Museum of Fine Arts of Moldova</string>
+    <string name="chisinau_museums_5_text">National Museum of Ethnography &amp; Natural History</string>
+    <string name="chisinau_museums_6_text">Chisinau City History Museum</string>
+    <string name="chisinau_museums_7_text">Alexander Pushkin House-Museum</string>
+
+    <string name="chisinau_monuments_1_text">Alley of Classics</string>
+    <string name="chisinau_monuments_2_text">Eternity Memorial Complex</string>
+    <string name="chisinau_monuments_3_text">Сornerstone of Chisinau</string>
+    <string name="chisinau_monuments_4_text">Memorial to Victims of Stalinist Repression</string>
+    <string name="chisinau_monuments_5_text">Stephen the Great Monument</string>
+    <string name="chisinau_churches_1_text">Măzărache Church</string>
+
+    <string name="chisinau_churches_2_text">Transfiguration Church</string>
+    <string name="chisinau_churches_3_text">St. Teodora de la Sihla Church</string>
+    <string name="chisinau_churches_4_text">Cathedral of Divine Providence</string>
+    <string name="chisinau_churches_5_text">Cathedral of Christ s Nativity</string>
+    <string name="chisinau_churches_6_text">Ciuflea Monastery</string>
+
+
+    <string name="northern_1_text">A Hundred Mounds (Suta de movile)</string>
+    <string name="northern_2_text">Balti</string>
+    <string name="northern_3_text">White Stork (Barza Alba)</string>
+    <string name="northern_4_text">Duruitoarea Veche cave</string>
+    <string name="northern_5_text">Taul Park</string>
+    <string name="northern_6_text">Naslavcea’s river views</string>
+    <string name="northern_7_text">Jewish cemetery at Vadul Rascov</string>
+    <string name="northern_8_text">Dumitru Matcovschi s House-Museum</string>
+    <string name="northern_9_text">Soroca Fortress</string>
+    <string name="northern_10_text">Rogojeni Village</string>
+
+
+    <string name="southern_1_text">Gagauzia</string>
+    <string name="southern_2_text">Comrat</string>
+    <string name="southern_3_text">Kara Gani Winery</string>
+    <string name="southern_4_text">Lake Beleu</string>
+    <string name="southern_5_text">Muzeul Pâinii, traditii si obiceiuri</string>
+    <string name="southern_6_text">Old Rite Church "The Covering of the Virgin Mary"</string>
+    <string name="southern_7_text">History Museum of the village of Slobozia Mare</string>
+    <string name="southern_8_text">Golden Hills (Colinele de Aur), Văleni</string>
+    <string name="southern_9_text">Petru Rareș s Road</string>
+    <string name="southern_10_text">National Gagauz History and Ethnographic Museum</string>
+    <string name="southern_11_text">Museum of „Alexei Mateevici”</string>
+
+
+    <string name="central_1_text">Craft Complex “Arta Rustica”</string>
+    <string name="central_2_text">Reserve "Plaiul Fagului"</string>
+    <string name="central_3_text">Molovata</string>
+    <string name="central_4_text">The mansion of Manuc Bey</string>
+    <string name="central_5_text">Bălănești Hill</string>
+
+    <string name="orhei_1_text">Cave Monastery</string>
+    <string name="orhei_2_text">Geto-Dacian fortress</string>
+    <string name="orhei_3_text">The Hermitage of Pârcălab Albu-Mașcăuți</string>
+    <string name="orhei_4_text">Visitors center of Orheiul Vechi Museum Complex</string>
+
+
+    <string name="transnistria_1_text">Aquatir</string>
+    <string name="transnistria_2_text">Tighina Fortress</string>
+    <string name="transnistria_3_text">Noul Neamt Monastery</string>
+    <string name="transnistria_4_text">Kumanek Restaurant</string>
+    <string name="transnistria_5_text">Vodka Bottle Museum</string>
+
+
+    <string name="chisinau_museums_text">Museums</string>
+    <string name="chisinau_monuments_text">Monuments</string>
+    <string name="chisinau_churches_text">Churches and Monasteries</string>
+
+    <string name="chisinau_text">Chisinau</string>
+    <string name="northern_text">Northern Moldova</string>
+    <string name="southern_text">Southern Moldova</string>
+    <string name="central_text">Central Moldova</string>
+    <string name="orhei_text">Old Orhei</string>
+    <string name="transnistria_text">Transnistrian region</string>
+
+    <string name="regions_title">Regions</string>
+
 </resources>
