@@ -1,89 +1,119 @@
 package com.example.firebasealgorithmtest
 
 import android.util.Log
+import kotlin.math.*
 
 class Algorithm {
 
-    fun getDistance(point1: Place, point2: Place, distances: Map<String, Double>, totalPlaces: Int): Double {
-        if (point1.name == point2.name || point1.id == point2.id) return 0.0
+    private val EARTH_RADIUS_KM = 6371.0
 
-        val id1 = point1.id.toInt()
-        val id2 = point2.id.toInt()
+    private fun calculateDistanceByCoordinates(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val lat1Rad = Math.toRadians(lat1)
+        val lat2Rad = Math.toRadians(lat2)
 
-        // Проверяем оба направления: "i_j" и "j_i"
-        val key1 = "${id1}_$id2"
-        val key2 = "${id2}_$id1"
+        val a = sin(dLat / 2) * sin(dLat / 2) +
+                cos(lat1Rad) * cos(lat2Rad) * sin(dLon / 2) * sin(dLon / 2)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return EARTH_RADIUS_KM * c
+    }
 
-        val distance = distances[key1] ?: distances[key2]
-        if (distance != null) {
+    fun getDistance(place1: Place, place2: Place, distances: Map<String, Double>): Double {
+        if (place1.id == 0L || place2.id == 0L) {
+            val distance = calculateDistanceByCoordinates(
+                place1.latitude, place1.longitude,
+                place2.latitude, place2.longitude
+            )
+            Log.d("Algorithm", "Расстояние (по координатам) между ${place1.name} (ID: ${place1.id}) и ${place2.name} (ID: ${place2.id}): $distance км")
             return distance
         }
 
-        Log.e("Algorithm", "Distance between ${point1.name} (id: ${point1.id}) and ${point2.name} (id: ${point2.id}) not found (keys: $key1, $key2).")
-        throw IllegalStateException("Distance between ${point1.name} (id: ${point1.id}) and ${point2.name} (id: ${point2.id}) not found. Please check the 'distances' data in Firebase.")
+        val key = "${place1.id}_${place2.id}"
+        val reverseKey = "${place2.id}_${place1.id}"
+        val distance = distances[key] ?: distances[reverseKey] ?: throw IllegalStateException("Distance between ${place1.id} and ${place2.id} not found")
+        Log.d("Algorithm", "Расстояние (из базы) между ${place1.name} (ID: ${place1.id}) и ${place2.name} (ID: ${place2.id}): $distance км")
+        return distance
     }
 
     fun findOptimalRoute(places: List<Place>, start: Place, distances: Map<String, Double>): List<Place> {
-        if (places.isEmpty()) {
-            Log.e("Algorithm", "Place list is empty")
-            throw IllegalStateException("Place list is empty")
+        if (places.isEmpty()) return emptyList()
+        if (places.size == 1) return listOf(start)
+
+        val placesWithoutStart = places.filter { it.id != start.id }
+        if (placesWithoutStart.isEmpty()) return listOf(start)
+
+        val n = placesWithoutStart.size
+        val placeList = placesWithoutStart
+        val startIndex = -1 // Индекс начальной точки (не включаем её в перестановки)
+
+        // dp[mask][last] хранит минимальное расстояние для подмножества mask, заканчивающегося в last
+        val dp = Array(1 shl n) { DoubleArray(n) { Double.MAX_VALUE } }
+        // prev[mask][last] хранит предыдущую точку для восстановления маршрута
+        val prev = Array(1 shl n) { IntArray(n) { -1 } }
+
+        // Инициализация: расстояние от start до каждой точки
+        for (i in 0 until n) {
+            dp[1 shl i][i] = getDistance(start, placeList[i], distances)
         }
 
-        val totalPlaces = places.size
-        val unvisited = places.toMutableList()
-        val route = mutableListOf<Place>()
-        var current = start
-
-        route.add(current)
-        unvisited.removeAll { it.id == current.id }
-
-        while (unvisited.isNotEmpty()) {
-            val nearest = unvisited.minByOrNull { place ->
-                try {
-                    val distance = getDistance(current, place, distances, totalPlaces)
-                    distance
-                } catch (e: IllegalStateException) {
-                    Log.e("Algorithm", "Error finding distance to ${place.name}: ${e.message}")
-                    Double.POSITIVE_INFINITY // Для сортировки, но исключение всё равно обработается ниже
+        // Динамическое программирование
+        for (mask in 1 until (1 shl n)) {
+            for (last in 0 until n) {
+                if (mask and (1 shl last) == 0) continue
+                val prevMask = mask xor (1 shl last)
+                for (prevLast in 0 until n) {
+                    if (prevMask and (1 shl prevLast) == 0) continue
+                    val newDist = dp[prevMask][prevLast] + getDistance(placeList[prevLast], placeList[last], distances)
+                    if (newDist < dp[mask][last]) {
+                        dp[mask][last] = newDist
+                        prev[mask][last] = prevLast
+                    }
                 }
             }
+        }
 
-            if (nearest == null) {
-                Log.e("Algorithm", "No nearest point found")
-                throw IllegalStateException("No nearest point found")
-            }
-
-            try {
-                val distance = getDistance(current, nearest, distances, totalPlaces)
-                route.add(nearest)
-                current = nearest
-                unvisited.remove(nearest)
-            } catch (e: IllegalStateException) {
-                Log.e("Algorithm", "Cannot add nearest point ${nearest.name}: ${e.message}")
-                throw e // Пропускаем и передаём ошибку наверх
+        // Находим минимальное расстояние и конечную точку
+        var minDistance = Double.MAX_VALUE
+        var lastIndex = -1
+        val finalMask = (1 shl n) - 1
+        for (i in 0 until n) {
+            if (dp[finalMask][i] < minDistance) {
+                minDistance = dp[finalMask][i]
+                lastIndex = i
             }
         }
 
-        return route
+        // Восстанавливаем маршрут
+        val route = mutableListOf<Place>()
+        var currentMask = finalMask
+        var currentLast = lastIndex
+        while (currentMask > 0) {
+            route.add(placeList[currentLast])
+            val prevLast = prev[currentMask][currentLast]
+            currentMask = currentMask xor (1 shl currentLast)
+            currentLast = prevLast
+        }
+
+        route.reverse()
+        val finalRoute = listOf(start) + route
+        Log.d("Algorithm", "Оптимальный маршрут (Held-Karp): ${finalRoute.joinToString(" -> ") { "${it.name} (ID: ${it.id})" }}, Длина: $minDistance км")
+        return finalRoute
     }
 
     fun calculateRouteDistance(route: List<Place>, distances: Map<String, Double>): Double {
-        if (route.size < 2) {
-            Log.d("Algorithm", "Route is too short: ${route.size} points")
-            return 0.0
+        if (route.size < 2) return 0.0
+        var totalDistance = 0.0
+
+        for (i in 0 until route.size - 1) {
+            val place1 = route[i]
+            val place2 = route[i + 1]
+            val distance = getDistance(place1, place2, distances)
+            totalDistance += distance
+            Log.d("Algorithm", "Расстояние между ${place1.name} и ${place2.name}: $distance км")
         }
 
-        val totalPlaces = route.size
-        var totalDistance = 0.0
-        for (i in 0 until route.size - 1) {
-            try {
-                val distance = getDistance(route[i], route[i + 1], distances, totalPlaces)
-                totalDistance += distance
-            } catch (e: IllegalStateException) {
-                Log.e("Algorithm", "Cannot calculate distance between ${route[i].name} and ${route[i + 1].name}: ${e.message}")
-                throw e // Пропускаем и передаём ошибку наверх
-            }
-        }
+        Log.d("Algorithm", "Общая длина маршрута: $totalDistance км")
         return totalDistance
     }
 }
