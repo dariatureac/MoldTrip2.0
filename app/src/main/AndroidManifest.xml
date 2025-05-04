@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.firebasealgorithmtest">
 
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,7 +19,22 @@
         android:theme="@style/Theme.FirebaseAlgorithmTest"
         tools:targetApi="31">
 
-        <!-- FirstScreenActivity is the main activity -->
+        <!-- Google Maps API Key (Uncomment if using Maps) -->
+        <!--
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="YOUR_API_KEY_HERE" />
+        -->
+
+        <!-- MainActivity (Removed as launcher activity) -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.FirebaseAlgorithmTest">
+        </activity>
+
+        <!-- FirstScreenActivity (Set as the new launcher) -->
         <activity
             android:name=".FirstScreenActivity"
             android:exported="true"
@@ -26,88 +46,66 @@
             </intent-filter>
         </activity>
 
-        <!-- RegionsActivity -->
+        <!-- Additional Activities -->
         <activity
             android:name=".RegionsActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FirebaseAlgorithmTest">
-        </activity>
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
 
-        <!-- MainActivity -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.FirebaseAlgorithmTest">
-        </activity>
-
-
-        <!-- ChisinauActivity -->
         <activity
             android:name=".ChisinauActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FirebaseAlgorithmTest">
-        </activity>
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
 
         <activity
             android:name=".ChisinauParksActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FirebaseAlgorithmTest">
-        </activity>
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
 
         <activity
             android:name=".ChisinauMuseumsActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FirebaseAlgorithmTest">
-        </activity>
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
 
         <activity
             android:name=".ChisinauMonumentsActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FirebaseAlgorithmTest">
-        </activity>
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
 
         <activity
             android:name=".ChisinauChurchesActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FirebaseAlgorithmTest">
-        </activity>
-
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
 
         <activity
             android:name=".NorthernActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FirebaseAlgorithmTest">
-        </activity>
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
 
         <activity
             android:name=".SouthernActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FirebaseAlgorithmTest">
-        </activity>
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
 
         <activity
             android:name=".OrheiActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FirebaseAlgorithmTest">
-        </activity>
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
 
         <activity
             android:name=".TransnistriaActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FirebaseAlgorithmTest">
-        </activity>
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
 
     </application>
-
 </manifest>
