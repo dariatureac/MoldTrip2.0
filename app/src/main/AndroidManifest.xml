@@ -19,12 +19,9 @@
         android:theme="@style/Theme.FirebaseAlgorithmTest"
         tools:targetApi="31">
 
-        <!-- Google Maps API Key (Uncomment if using Maps) -->
-        <!--
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_API_KEY_HERE" />
-        -->
+            android:value="AIzaSyDylCp7rAdiPQLty8BPhDAuTnK4XqH2PG8" />
 
         <!-- MainActivity (Removed as launcher activity) -->
         <activity
