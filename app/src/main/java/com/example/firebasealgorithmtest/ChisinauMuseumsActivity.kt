@@ -64,7 +64,6 @@ fun ChisinauMuseumsScreen() {
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Main image + region title
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -72,13 +71,13 @@ fun ChisinauMuseumsScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.chisinau_museums),
-                contentDescription = stringResource(R.string.chisinau_museums_text),
+                painter = painterResource(id = R.drawable.chisinau),
+                contentDescription = stringResource(R.string.chisinau_text),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
             Text(
-                text = stringResource(R.string.chisinau_museums_text),
+                text = stringResource(R.string.chisinau_text),
                 fontSize = 24.sp,
                 color = Color.Black,
                 modifier = Modifier
@@ -91,12 +90,17 @@ fun ChisinauMuseumsScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items
-        items.forEach { item ->
-            ChisinauMuseumsItemCard(item = item, purple = purple, green = green, white = white, black = black)
+        items.forEachIndexed { index, item ->
+            ChisinauMuseumsItemCard(
+                index = index,
+                item = item,
+                purple = purple,
+                green = green,
+                white = white,
+                black = black
+            )
         }
 
-        // NEXT Button
         Button(
             onClick = {
                 context.startActivity(Intent(context, RegionsActivity::class.java))
@@ -119,8 +123,10 @@ fun ChisinauMuseumsScreen() {
 }
 
 @Composable
-fun ChisinauMuseumsItemCard(item: ChisinauMuseumsItem, purple: Color, green: Color, white: Color, black: Color) {
-    var checked by remember { mutableStateOf(false) }
+fun ChisinauMuseumsItemCard(index: Int, item: ChisinauMuseumsItem, purple: Color, green: Color, white: Color, black: Color) {
+    var checked by remember {
+        mutableStateOf(SelectionManager.isItemSelected("chisinau", index))
+    }
 
     Column(
         modifier = Modifier
@@ -150,7 +156,11 @@ fun ChisinauMuseumsItemCard(item: ChisinauMuseumsItem, purple: Color, green: Col
             )
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    if (it) SelectionManager.selectItem("chisinau", index)
+                    else SelectionManager.unselectItem("chisinau", index)
+                },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black
                 )

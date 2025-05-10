@@ -75,7 +75,7 @@ fun NorthernScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.northern),
+                painter = painterResource(id = R.drawable.northern), // Change to the correct image
                 contentDescription = stringResource(R.string.northern_text),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -94,9 +94,16 @@ fun NorthernScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items
-        items.forEach { item ->
-            NorthItemCard(item = item, purple = purple, green = green, white = white, black = black)
+        // Items with checkboxes
+        items.forEachIndexed { index, item ->
+            NorthItemCard(
+                index = index,
+                item = item,
+                purple = purple,
+                green = green,
+                white = white,
+                black = black
+            )
         }
 
         // NEXT Button
@@ -122,8 +129,10 @@ fun NorthernScreen() {
 }
 
 @Composable
-fun NorthItemCard(item: NorthernItem, purple: Color, green: Color, white: Color, black: Color) {
-    var checked by remember { mutableStateOf(false) }
+fun NorthItemCard(index: Int, item: NorthernItem, purple: Color, green: Color, white: Color, black: Color) {
+    var checked by remember {
+        mutableStateOf(SelectionManager.isItemSelected("northern", index))
+    }
 
     Column(
         modifier = Modifier
@@ -153,7 +162,11 @@ fun NorthItemCard(item: NorthernItem, purple: Color, green: Color, white: Color,
             )
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    if (it) SelectionManager.selectItem("northern", index)
+                    else SelectionManager.unselectItem("northern", index)
+                },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black
                 )

@@ -73,7 +73,7 @@ fun RegionsScreen() {
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-        NextButton()
+        FinishButton()
     }
 }
 
@@ -116,28 +116,18 @@ fun RegionItemCard(item: RegionItem, modifier: Modifier = Modifier) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(8.dp)) // Rounded corners for image
+                .clip(RoundedCornerShape(8.dp))
         )
 
         Button(
             onClick = {
-                if (item.labelRes == R.string.chisinau_text) {
-                    context.startActivity(Intent(context, ChisinauActivity::class.java))
-                }
-                if (item.labelRes == R.string.northern_text) {
-                    context.startActivity(Intent(context, NorthernActivity::class.java))
-                }
-                if (item.labelRes == R.string.southern_text) {
-                    context.startActivity(Intent(context, SouthernActivity::class.java))
-                }
-                if (item.labelRes == R.string.central_text) {
-                    context.startActivity(Intent(context, CentralActivity::class.java))
-                }
-                if (item.labelRes == R.string.orhei_text) {
-                    context.startActivity(Intent(context, OrheiActivity::class.java))
-                }
-                if (item.labelRes == R.string.transnistria_text) {
-                    context.startActivity(Intent(context, TransnistriaActivity::class.java))
+                when (item.labelRes) {
+                    R.string.chisinau_text -> context.startActivity(Intent(context, ChisinauActivity::class.java))
+                    R.string.northern_text -> context.startActivity(Intent(context, NorthernActivity::class.java))
+                    R.string.southern_text -> context.startActivity(Intent(context, SouthernActivity::class.java))
+                    R.string.central_text -> context.startActivity(Intent(context, CentralActivity::class.java))
+                    R.string.orhei_text -> context.startActivity(Intent(context, OrheiActivity::class.java))
+                    R.string.transnistria_text -> context.startActivity(Intent(context, TransnistriaActivity::class.java))
                 }
             },
             modifier = Modifier
@@ -160,13 +150,21 @@ fun RegionItemCard(item: RegionItem, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun NextButton() {
+fun FinishButton() {
     val context = LocalContext.current
+
+    // Collect selected items from SelectionManager
+    val selectedItems = SelectionManager.getAllSelections()
 
     Button(
         onClick = {
-            // Navigate to MainActivity when "Finish" is clicked
-            val intent = Intent(context, MainActivity::class.java)
+            // Create the intent to navigate to SummaryActivity
+            val intent = Intent(context, SummaryActivity::class.java)
+
+            // Pass selected items as extra (ensure it's serializable)
+            intent.putExtra("selectedItems", HashMap(selectedItems))
+
+            // Start the activity
             context.startActivity(intent)
         },
         modifier = Modifier
@@ -180,8 +178,14 @@ fun NextButton() {
         shape = RoundedCornerShape(50)
     ) {
         Text(
-            text = "Finish", // Change the button text to "Finish"
+            text = "Finish",
             fontSize = 16.sp
         )
     }
 }
+
+
+
+
+
+

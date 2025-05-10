@@ -88,15 +88,25 @@ fun OrheiScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items
-        items.forEach { item ->
-            OrheiItemCard(item = item, purple = purple, green = green, white = white, black = black)
+        // Items with checkboxes
+        items.forEachIndexed { index, item ->
+            OrheiItemCard(
+                index = index,
+                item = item,
+                purple = purple,
+                green = green,
+                white = white,
+                black = black
+            )
         }
 
         // NEXT Button
         Button(
             onClick = {
-                context.startActivity(Intent(context, RegionsActivity::class.java))
+                // Navigate to RegionsActivity (or just finish and navigate to summary in RegionsActivity)
+                val intent = Intent(context, RegionsActivity::class.java)
+                context.startActivity(intent)
+                (context as? ComponentActivity)?.finish()  // Finish current activity
             },
             modifier = Modifier
                 .align(Alignment.End)
@@ -116,8 +126,10 @@ fun OrheiScreen() {
 }
 
 @Composable
-fun OrheiItemCard(item: OrheiItem, purple: Color, green: Color, white: Color, black: Color) {
-    var checked by remember { mutableStateOf(false) }
+fun OrheiItemCard(index: Int, item: OrheiItem, purple: Color, green: Color, white: Color, black: Color) {
+    var checked by remember {
+        mutableStateOf(SelectionManager.isItemSelected("orhei", index))
+    }
 
     Column(
         modifier = Modifier
@@ -147,7 +159,11 @@ fun OrheiItemCard(item: OrheiItem, purple: Color, green: Color, white: Color, bl
             )
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    if (it) SelectionManager.selectItem("orhei", index)
+                    else SelectionManager.unselectItem("orhei", index)
+                },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black
                 )

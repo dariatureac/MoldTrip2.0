@@ -53,7 +53,8 @@ fun TransnistriaScreen() {
         TransnistriaItem(R.drawable.transnistria2, R.string.transnistria_2_text),
         TransnistriaItem(R.drawable.transnistria3, R.string.transnistria_3_text),
         TransnistriaItem(R.drawable.transnistria4, R.string.transnistria_4_text),
-       )
+        TransnistriaItem(R.drawable.transnistria5, R.string.transnistria_5_text),
+    )
 
     Column(
         modifier = Modifier
@@ -69,7 +70,7 @@ fun TransnistriaScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.transnistria),
+                painter = painterResource(id = R.drawable.transnistria), // Change to the correct image
                 contentDescription = stringResource(R.string.transnistria_text),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -88,15 +89,25 @@ fun TransnistriaScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items
-        items.forEach { item ->
-            TransnistriaItemCard(item = item, purple = purple, green = green, white = white, black = black)
+        // Items with checkboxes
+        items.forEachIndexed { index, item ->
+            TransnistriaItemCard(
+                index = index,
+                item = item,
+                purple = purple,
+                green = green,
+                white = white,
+                black = black
+            )
         }
 
         // NEXT Button
         Button(
             onClick = {
-                context.startActivity(Intent(context, RegionsActivity::class.java))
+                // Navigate to RegionsActivity and pass selections
+                val intent = Intent(context, RegionsActivity::class.java)
+                context.startActivity(intent) // Start the RegionsActivity
+                (context as? ComponentActivity)?.finish()  // Finish current activity
             },
             modifier = Modifier
                 .align(Alignment.End)
@@ -116,8 +127,10 @@ fun TransnistriaScreen() {
 }
 
 @Composable
-fun TransnistriaItemCard(item: TransnistriaItem, purple: Color, green: Color, white: Color, black: Color) {
-    var checked by remember { mutableStateOf(false) }
+fun TransnistriaItemCard(index: Int, item: TransnistriaItem, purple: Color, green: Color, white: Color, black: Color) {
+    var checked by remember {
+        mutableStateOf(SelectionManager.isItemSelected("transnistria", index))
+    }
 
     Column(
         modifier = Modifier
@@ -147,7 +160,11 @@ fun TransnistriaItemCard(item: TransnistriaItem, purple: Color, green: Color, wh
             )
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    if (it) SelectionManager.selectItem("transnistria", index)
+                    else SelectionManager.unselectItem("transnistria", index)
+                },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black
                 )

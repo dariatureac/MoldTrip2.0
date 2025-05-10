@@ -61,7 +61,6 @@ fun ChisinauParksScreen() {
         ChisinauParksItem(R.drawable.chisinau_parks_10, R.string.chisinau_parks_10_text),
     )
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,13 +75,13 @@ fun ChisinauParksScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.chisinau_parks),
-                contentDescription = stringResource(R.string.chisinau_parks_text),
+                painter = painterResource(id = R.drawable.chisinau),
+                contentDescription = stringResource(R.string.chisinau_text),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
             Text(
-                text = stringResource(R.string.chisinau_parks_text),
+                text = stringResource(R.string.chisinau_text),
                 fontSize = 24.sp,
                 color = Color.Black,
                 modifier = Modifier
@@ -95,12 +94,17 @@ fun ChisinauParksScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items
-        items.forEach { item ->
-            ChisinauParksItemCard(item = item, purple = purple, green = green, white = white, black = black)
+        items.forEachIndexed { index, item ->
+            ChisinauParksItemCard(
+                index = index,
+                item = item,
+                purple = purple,
+                green = green,
+                white = white,
+                black = black
+            )
         }
 
-        // NEXT Button
         Button(
             onClick = {
                 context.startActivity(Intent(context, RegionsActivity::class.java))
@@ -123,8 +127,10 @@ fun ChisinauParksScreen() {
 }
 
 @Composable
-fun ChisinauParksItemCard(item: ChisinauParksItem, purple: Color, green: Color, white: Color, black: Color) {
-    var checked by remember { mutableStateOf(false) }
+fun ChisinauParksItemCard(index: Int, item: ChisinauParksItem, purple: Color, green: Color, white: Color, black: Color) {
+    var checked by remember {
+        mutableStateOf(SelectionManager.isItemSelected("chisinau", index))
+    }
 
     Column(
         modifier = Modifier
@@ -154,7 +160,11 @@ fun ChisinauParksItemCard(item: ChisinauParksItem, purple: Color, green: Color, 
             )
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    if (it) SelectionManager.selectItem("chisinau", index)
+                    else SelectionManager.unselectItem("chisinau", index)
+                },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black
                 )

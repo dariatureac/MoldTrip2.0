@@ -71,13 +71,13 @@ fun ChisinauChurchesScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.chisinau_churches),
-                contentDescription = stringResource(R.string.chisinau_churches_text),
+                painter = painterResource(id = R.drawable.chisinau), // Change to the correct image
+                contentDescription = stringResource(R.string.chisinau_text),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
             Text(
-                text = stringResource(R.string.chisinau_churches_text),
+                text = stringResource(R.string.chisinau_text),
                 fontSize = 24.sp,
                 color = Color.Black,
                 modifier = Modifier
@@ -90,9 +90,16 @@ fun ChisinauChurchesScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items
-        items.forEach { item ->
-            ChisinauChurchesItemCard(item = item, purple = purple, green = green, white = white, black = black)
+        // Items with checkboxes
+        items.forEachIndexed { index, item ->
+            ChisinauChurchesItemCard(
+                index = index,
+                item = item,
+                purple = purple,
+                green = green,
+                white = white,
+                black = black
+            )
         }
 
         // NEXT Button
@@ -118,8 +125,10 @@ fun ChisinauChurchesScreen() {
 }
 
 @Composable
-fun ChisinauChurchesItemCard(item: ChisinauChurchesItem, purple: Color, green: Color, white: Color, black: Color) {
-    var checked by remember { mutableStateOf(false) }
+fun ChisinauChurchesItemCard(index: Int, item: ChisinauChurchesItem, purple: Color, green: Color, white: Color, black: Color) {
+    var checked by remember {
+        mutableStateOf(SelectionManager.isItemSelected("chisinau", index))
+    }
 
     Column(
         modifier = Modifier
@@ -149,7 +158,11 @@ fun ChisinauChurchesItemCard(item: ChisinauChurchesItem, purple: Color, green: C
             )
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    if (it) SelectionManager.selectItem("chisinau", index)
+                    else SelectionManager.unselectItem("chisinau", index)
+                },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black
                 )

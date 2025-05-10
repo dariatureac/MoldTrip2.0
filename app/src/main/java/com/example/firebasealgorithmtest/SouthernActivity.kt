@@ -95,9 +95,16 @@ fun SouthernScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items
-        items.forEach { item ->
-            SouthItemCard(item = item, purple = purple, green = green, white = white, black = black)
+        // Items with checkboxes
+        items.forEachIndexed { index, item ->
+            SouthItemCard(
+                index = index,
+                item = item,
+                purple = purple,
+                green = green,
+                white = white,
+                black = black
+            )
         }
 
         // NEXT Button
@@ -123,8 +130,10 @@ fun SouthernScreen() {
 }
 
 @Composable
-fun SouthItemCard(item: SouthernItem, purple: Color, green: Color, white : Color, black : Color) {
-    var checked by remember { mutableStateOf(false) }
+fun SouthItemCard(index: Int, item: SouthernItem, purple: Color, green: Color, white : Color, black : Color) {
+    var checked by remember {
+        mutableStateOf(SelectionManager.isItemSelected("southern", index))
+    }
 
     Column(
         modifier = Modifier
@@ -154,7 +163,11 @@ fun SouthItemCard(item: SouthernItem, purple: Color, green: Color, white : Color
             )
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    if (it) SelectionManager.selectItem("southern", index)
+                    else SelectionManager.unselectItem("southern", index)
+                },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black
                 )

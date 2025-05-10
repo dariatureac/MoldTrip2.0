@@ -93,6 +93,12 @@
             android:theme="@style/Theme.FirebaseAlgorithmTest" />
 
         <activity
+            android:name=".CentralActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
+
+        <activity
             android:name=".OrheiActivity"
             android:exported="true"
             android:label="@string/app_name"
@@ -100,6 +106,12 @@
 
         <activity
             android:name=".TransnistriaActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.FirebaseAlgorithmTest" />
+
+        <activity
+            android:name=".SummaryActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.FirebaseAlgorithmTest" />

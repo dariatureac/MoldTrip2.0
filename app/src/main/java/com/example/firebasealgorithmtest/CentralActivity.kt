@@ -89,9 +89,16 @@ fun CentralScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items
-        items.forEach { item ->
-            CentralItemCard(item = item, purple = purple, green = green, white = white, black = black)
+        // Items with checkboxes
+        items.forEachIndexed { index, item ->
+            CentralItemCard(
+                index = index,
+                item = item,
+                purple = purple,
+                green = green,
+                white = white,
+                black = black
+            )
         }
 
         // NEXT Button
@@ -117,8 +124,10 @@ fun CentralScreen() {
 }
 
 @Composable
-fun CentralItemCard(item: CentralItem, purple: Color, green: Color, white: Color, black: Color) {
-    var checked by remember { mutableStateOf(false) }
+fun CentralItemCard(index: Int, item: CentralItem, purple: Color, green: Color, white: Color, black: Color) {
+    var checked by remember {
+        mutableStateOf(SelectionManager.isItemSelected("central", index))
+    }
 
     Column(
         modifier = Modifier
@@ -148,7 +157,11 @@ fun CentralItemCard(item: CentralItem, purple: Color, green: Color, white: Color
             )
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    if (it) SelectionManager.selectItem("central", index)
+                    else SelectionManager.unselectItem("central", index)
+                },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black
                 )
