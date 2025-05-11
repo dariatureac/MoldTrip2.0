@@ -35,11 +35,6 @@ class CentralActivity : ComponentActivity() {
     }
 }
 
-data class CentralItem(
-    val imageRes: Int,
-    val textRes: Int
-)
-
 @Composable
 fun CentralScreen() {
     val context = LocalContext.current
@@ -48,20 +43,12 @@ fun CentralScreen() {
     val white = Color(ContextCompat.getColor(context, R.color.white))
     val black = Color(ContextCompat.getColor(context, R.color.black))
 
-    val items = listOf(
-        CentralItem(R.drawable.central1, R.string.central_1_text),
-        CentralItem(R.drawable.central2, R.string.central_2_text),
-        CentralItem(R.drawable.central3, R.string.central_3_text),
-        CentralItem(R.drawable.central4, R.string.central_4_text),
-        CentralItem(R.drawable.central5, R.string.central_5_text),
-    )
+    // Fetch spots related to the Central region from the SpotsRepository
+    val items = SpotsRepository.spots.filter { spot ->
+        spot.id in 1..5 // Spot IDs for the Central region
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
+    BackgroundWrapper {
         // Main image + region title
         Box(
             modifier = Modifier
@@ -70,8 +57,8 @@ fun CentralScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.central),
-                contentDescription = stringResource(R.string.central_text),
+                painter = painterResource(id = R.drawable.central),  // Change image to central region
+                contentDescription = stringResource(R.string.central_text),  // Change text resource to central
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -89,9 +76,16 @@ fun CentralScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items
-        items.forEach { item ->
-            CentralItemCard(item = item, purple = purple, green = green, white = white, black = black)
+        // Items with checkboxes (use global spot IDs)
+        items.forEach { spot ->
+            CentralItemCard(
+                spotId = spot.id,  // Pass the global spot ID
+                spot = spot,
+                purple = purple,
+                green = green,
+                white = white,
+                black = black
+            )
         }
 
         // NEXT Button
@@ -110,15 +104,17 @@ fun CentralScreen() {
         ) {
             Text(
                 text = "Next",
-                color = green
+                color = white
             )
         }
     }
 }
 
 @Composable
-fun CentralItemCard(item: CentralItem, purple: Color, green: Color, white: Color, black: Color) {
-    var checked by remember { mutableStateOf(false) }
+fun CentralItemCard(spotId: Int, spot: Spot, purple: Color, green: Color, white: Color, black: Color) {
+    var checked by remember {
+        mutableStateOf(SelectionManager.isSpotSelected(spotId))  // Check if the spot is selected by its global ID
+    }
 
     Column(
         modifier = Modifier
@@ -126,7 +122,7 @@ fun CentralItemCard(item: CentralItem, purple: Color, green: Color, white: Color
             .padding(bottom = 16.dp)
     ) {
         Image(
-            painter = painterResource(id = item.imageRes),
+            painter = painterResource(id = spot.imageResId),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -141,14 +137,18 @@ fun CentralItemCard(item: CentralItem, purple: Color, green: Color, white: Color
                 .padding(12.dp)
         ) {
             Text(
-                text = stringResource(id = item.textRes),
+                text = stringResource(id = spot.textResId),
                 fontSize = 18.sp,
                 color = black,
                 modifier = Modifier.weight(1f)
             )
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    if (it) SelectionManager.selectSpot(spotId) // Use global spot ID
+                    else SelectionManager.unselectSpot(spotId)
+                },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black
                 )

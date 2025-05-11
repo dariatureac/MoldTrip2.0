@@ -35,11 +35,6 @@ class ChisinauChurchesActivity : ComponentActivity() {
     }
 }
 
-data class ChisinauChurchesItem(
-    val imageRes: Int,
-    val textRes: Int
-)
-
 @Composable
 fun ChisinauChurchesScreen() {
     val context = LocalContext.current
@@ -48,21 +43,12 @@ fun ChisinauChurchesScreen() {
     val white = Color(ContextCompat.getColor(context, R.color.white))
     val black = Color(ContextCompat.getColor(context, R.color.black))
 
-    val items = listOf(
-        ChisinauChurchesItem(R.drawable.chisinau_churches_1, R.string.chisinau_churches_1_text),
-        ChisinauChurchesItem(R.drawable.chisinau_churches_2, R.string.chisinau_churches_2_text),
-        ChisinauChurchesItem(R.drawable.chisinau_churches_3, R.string.chisinau_churches_3_text),
-        ChisinauChurchesItem(R.drawable.chisinau_churches_4, R.string.chisinau_churches_4_text),
-        ChisinauChurchesItem(R.drawable.chisinau_churches_5, R.string.chisinau_churches_5_text),
-        ChisinauChurchesItem(R.drawable.chisinau_churches_6, R.string.chisinau_churches_6_text),
-    )
+    // Fetch spots related to Chisinau Churches from the SpotsRepository
+    val items = SpotsRepository.spots.filter { spot ->
+        spot.id in 60..66 // Spot IDs for Chisinau Churches (update these based on actual church IDs)
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
+    BackgroundWrapper {
         // Main image + region title
         Box(
             modifier = Modifier
@@ -71,13 +57,13 @@ fun ChisinauChurchesScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.chisinau_churches),
-                contentDescription = stringResource(R.string.chisinau_churches_text),
+                painter = painterResource(id = R.drawable.chisinau_churches), // You might want to change this image to one representing churches
+                contentDescription = stringResource(R.string.chisinau_churches_text), // Update the description if necessary
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
             Text(
-                text = stringResource(R.string.chisinau_churches_text),
+                text = stringResource(R.string.chisinau_churches_text), // Update text for churches
                 fontSize = 24.sp,
                 color = Color.Black,
                 modifier = Modifier
@@ -90,9 +76,16 @@ fun ChisinauChurchesScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items
-        items.forEach { item ->
-            ChisinauChurchesItemCard(item = item, purple = purple, green = green, white = white, black = black)
+        // Items with checkboxes (use global spot IDs)
+        items.forEach { spot ->
+            ChisinauChurchesItemCard(
+                spotId = spot.id,  // Pass the global spot ID
+                spot = spot,
+                purple = purple,
+                green = green,
+                white = white,
+                black = black
+            )
         }
 
         // NEXT Button
@@ -111,15 +104,17 @@ fun ChisinauChurchesScreen() {
         ) {
             Text(
                 text = "Next",
-                color = green
+                color = white
             )
         }
     }
 }
 
 @Composable
-fun ChisinauChurchesItemCard(item: ChisinauChurchesItem, purple: Color, green: Color, white: Color, black: Color) {
-    var checked by remember { mutableStateOf(false) }
+fun ChisinauChurchesItemCard(spotId: Int, spot: Spot, purple: Color, green: Color, white: Color, black: Color) {
+    var checked by remember {
+        mutableStateOf(SelectionManager.isSpotSelected(spotId))  // Check if the spot is selected by its global ID
+    }
 
     Column(
         modifier = Modifier
@@ -127,7 +122,7 @@ fun ChisinauChurchesItemCard(item: ChisinauChurchesItem, purple: Color, green: C
             .padding(bottom = 16.dp)
     ) {
         Image(
-            painter = painterResource(id = item.imageRes),
+            painter = painterResource(id = spot.imageResId),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -142,14 +137,18 @@ fun ChisinauChurchesItemCard(item: ChisinauChurchesItem, purple: Color, green: C
                 .padding(12.dp)
         ) {
             Text(
-                text = stringResource(id = item.textRes),
+                text = stringResource(id = spot.textResId),
                 fontSize = 18.sp,
                 color = black,
                 modifier = Modifier.weight(1f)
             )
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    if (it) SelectionManager.selectSpot(spotId) // Use global spot ID
+                    else SelectionManager.unselectSpot(spotId)
+                },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black
                 )

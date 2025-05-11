@@ -35,11 +35,6 @@ class ChisinauMonumentsActivity : ComponentActivity() {
     }
 }
 
-data class ChisinauMonumentsItem(
-    val imageRes: Int,
-    val textRes: Int
-)
-
 @Composable
 fun ChisinauMonumentsScreen() {
     val context = LocalContext.current
@@ -48,20 +43,12 @@ fun ChisinauMonumentsScreen() {
     val white = Color(ContextCompat.getColor(context, R.color.white))
     val black = Color(ContextCompat.getColor(context, R.color.black))
 
-    val items = listOf(
-        ChisinauMonumentsItem(R.drawable.chisinau_monuments_1, R.string.chisinau_monuments_1_text),
-        ChisinauMonumentsItem(R.drawable.chisinau_monuments_2, R.string.chisinau_monuments_2_text),
-        ChisinauMonumentsItem(R.drawable.chisinau_monuments_3, R.string.chisinau_monuments_3_text),
-        ChisinauMonumentsItem(R.drawable.chisinau_monuments_4, R.string.chisinau_monuments_4_text),
-        ChisinauMonumentsItem(R.drawable.chisinau_monuments_5, R.string.chisinau_monuments_5_text),
-    )
+    // Fetch spots related to Chisinau Monuments from the SpotsRepository
+    val items = SpotsRepository.spots.filter { spot ->
+        spot.id in 53..59 // Spot IDs for Chisinau Monuments
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
+    BackgroundWrapper {
         // Main image + region title
         Box(
             modifier = Modifier
@@ -89,9 +76,16 @@ fun ChisinauMonumentsScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items
-        items.forEach { item ->
-            ChisinauMonumentsItemCard(item = item, purple = purple, green = green, white = white, black = black)
+        // Items with checkboxes (use global spot IDs)
+        items.forEach { spot ->
+            ChisinauMonumentsItemCard(
+                spotId = spot.id,  // Pass the global spot ID
+                spot = spot,
+                purple = purple,
+                green = green,
+                white = white,
+                black = black
+            )
         }
 
         // NEXT Button
@@ -110,15 +104,17 @@ fun ChisinauMonumentsScreen() {
         ) {
             Text(
                 text = "Next",
-                color = green
+                color = white
             )
         }
     }
 }
 
 @Composable
-fun ChisinauMonumentsItemCard(item: ChisinauMonumentsItem, purple: Color, green: Color, white: Color, black: Color) {
-    var checked by remember { mutableStateOf(false) }
+fun ChisinauMonumentsItemCard(spotId: Int, spot: Spot, purple: Color, green: Color, white: Color, black: Color) {
+    var checked by remember {
+        mutableStateOf(SelectionManager.isSpotSelected(spotId))  // Check if the spot is selected by its global ID
+    }
 
     Column(
         modifier = Modifier
@@ -126,7 +122,7 @@ fun ChisinauMonumentsItemCard(item: ChisinauMonumentsItem, purple: Color, green:
             .padding(bottom = 16.dp)
     ) {
         Image(
-            painter = painterResource(id = item.imageRes),
+            painter = painterResource(id = spot.imageResId),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -141,14 +137,18 @@ fun ChisinauMonumentsItemCard(item: ChisinauMonumentsItem, purple: Color, green:
                 .padding(12.dp)
         ) {
             Text(
-                text = stringResource(id = item.textRes),
+                text = stringResource(id = spot.textResId),
                 fontSize = 18.sp,
                 color = black,
                 modifier = Modifier.weight(1f)
             )
             Checkbox(
                 checked = checked,
-                onCheckedChange = { checked = it },
+                onCheckedChange = {
+                    checked = it
+                    if (it) SelectionManager.selectSpot(spotId) // Use global spot ID
+                    else SelectionManager.unselectSpot(spotId)
+                },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black
                 )

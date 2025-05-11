@@ -36,13 +36,7 @@ class ChisinauActivity : ComponentActivity() {
 @Composable
 fun ChisinauScreen() {
     // Enable scrolling for the entire screen
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())  // Enable vertical scrolling
-    ) {
+    BackgroundWrapper {
         // Chisinau image and title
         ChisinauImageSection()
 

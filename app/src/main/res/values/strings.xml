@@ -8,7 +8,6 @@
     <string name="mold_trip_text">MoldTrip</string>
 
 
-    <string name="chisinau_parks_text">Parks</string>
     <string name="chisinau_parks_1_text">Public Garden Stephen the Great</string>
     <string name="chisinau_parks_2_text">National Botanical Garden</string>
     <string name="chisinau_parks_3_text">Afghanistan Park</string>
@@ -28,18 +27,23 @@
     <string name="chisinau_museums_6_text">Chisinau City History Museum</string>
     <string name="chisinau_museums_7_text">Alexander Pushkin House-Museum</string>
 
-    <string name="chisinau_monuments_1_text">Alley of Classics</string>
-    <string name="chisinau_monuments_2_text">Eternity Memorial Complex</string>
-    <string name="chisinau_monuments_3_text">Сornerstone of Chisinau</string>
-    <string name="chisinau_monuments_4_text">Memorial to Victims of Stalinist Repression</string>
-    <string name="chisinau_monuments_5_text">Stephen the Great Monument</string>
-    <string name="chisinau_churches_1_text">Măzărache Church</string>
 
+    <string name="chisinau_monuments_1_text">Alley of Classics</string>
+    <string name="chisinau_monuments_2_text">The Triumphal Arch</string>
+    <string name="chisinau_monuments_3_text">Eternity Memorial Complex</string>
+    <string name="chisinau_monuments_4_text">Monument to the Victims of the Jewish Ghetto</string>
+    <string name="chisinau_monuments_5_text">Сornerstone of Chisinau</string>
+    <string name="chisinau_monuments_6_text">Memorial to Victims of Stalinist Repression</string>
+    <string name="chisinau_monuments_7_text">Stephen the Great Monument</string>
+
+    <!-- Chisinau Churches -->
+    <string name="chisinau_churches_1_text">Măzărache Church</string>
     <string name="chisinau_churches_2_text">Transfiguration Church</string>
     <string name="chisinau_churches_3_text">St. Teodora de la Sihla Church</string>
     <string name="chisinau_churches_4_text">Cathedral of Divine Providence</string>
     <string name="chisinau_churches_5_text">Cathedral of Christ s Nativity</string>
-    <string name="chisinau_churches_6_text">Ciuflea Monastery</string>
+    <string name="chisinau_churches_6_text">Saint Pantaleon Orthodox Church</string>
+    <string name="chisinau_churches_7_text">Ciuflea Monastery</string>
 
 
     <string name="northern_1_text">A Hundred Mounds (Suta de movile)</string>
@@ -86,6 +90,7 @@
     <string name="transnistria_5_text">Vodka Bottle Museum</string>
 
 
+    <string name="chisinau_parks_text">Parks</string>
     <string name="chisinau_museums_text">Museums</string>
     <string name="chisinau_monuments_text">Monuments</string>
     <string name="chisinau_churches_text">Churches and Monasteries</string>
