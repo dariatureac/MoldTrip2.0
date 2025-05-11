@@ -35,11 +35,6 @@ class SouthernActivity : ComponentActivity() {
     }
 }
 
-data class SouthernItem(
-    val imageRes: Int,
-    val textRes: Int
-)
-
 @Composable
 fun SouthernScreen() {
     val context = LocalContext.current
@@ -48,26 +43,12 @@ fun SouthernScreen() {
     val white = Color(ContextCompat.getColor(context, R.color.white))
     val black = Color(ContextCompat.getColor(context, R.color.black))
 
-    val items = listOf(
-        SouthernItem(R.drawable.southern1, R.string.southern_1_text),
-        SouthernItem(R.drawable.southern2, R.string.southern_2_text),
-        SouthernItem(R.drawable.southern3, R.string.southern_3_text),
-        SouthernItem(R.drawable.southern4, R.string.southern_4_text),
-        SouthernItem(R.drawable.southern5, R.string.southern_5_text),
-        SouthernItem(R.drawable.southern6, R.string.southern_6_text),
-        SouthernItem(R.drawable.southern7, R.string.southern_7_text),
-        SouthernItem(R.drawable.southern8, R.string.southern_8_text),
-        SouthernItem(R.drawable.southern9, R.string.southern_9_text),
-        SouthernItem(R.drawable.southern10, R.string.southern_10_text),
-        SouthernItem(R.drawable.southern11, R.string.southern_11_text),
-    )
+    // Fetch spots related to the Southern region from the SpotsRepository
+    val items = SpotsRepository.spots.filter { spot ->
+        spot.id in 6..16 // Spot IDs for the Southern region (adjust these as necessary)
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
+    BackgroundWrapper {
         // Main image + region title
         Box(
             modifier = Modifier
@@ -76,8 +57,8 @@ fun SouthernScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.southern),
-                contentDescription = stringResource(R.string.southern_text),
+                painter = painterResource(id = R.drawable.southern),  // Change to southern region image
+                contentDescription = stringResource(R.string.southern_text),  // Change to southern text resource
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -95,11 +76,11 @@ fun SouthernScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items with checkboxes
-        items.forEachIndexed { index, item ->
-            SouthItemCard(
-                index = index,
-                item = item,
+        // Items with checkboxes (use global spot IDs)
+        items.forEach { spot ->
+            SouthernItemCard(
+                spotId = spot.id,  // Pass the global spot ID
+                spot = spot,
                 purple = purple,
                 green = green,
                 white = white,
@@ -123,16 +104,16 @@ fun SouthernScreen() {
         ) {
             Text(
                 text = "Next",
-                color = green
+                color = white
             )
         }
     }
 }
 
 @Composable
-fun SouthItemCard(index: Int, item: SouthernItem, purple: Color, green: Color, white : Color, black : Color) {
+fun SouthernItemCard(spotId: Int, spot: Spot, purple: Color, green: Color, white: Color, black: Color) {
     var checked by remember {
-        mutableStateOf(SelectionManager.isItemSelected("southern", index))
+        mutableStateOf(SelectionManager.isSpotSelected(spotId))  // Check if the spot is selected by its global ID
     }
 
     Column(
@@ -141,7 +122,7 @@ fun SouthItemCard(index: Int, item: SouthernItem, purple: Color, green: Color, w
             .padding(bottom = 16.dp)
     ) {
         Image(
-            painter = painterResource(id = item.imageRes),
+            painter = painterResource(id = spot.imageResId),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -156,7 +137,7 @@ fun SouthItemCard(index: Int, item: SouthernItem, purple: Color, green: Color, w
                 .padding(12.dp)
         ) {
             Text(
-                text = stringResource(id = item.textRes),
+                text = stringResource(id = spot.textResId),
                 fontSize = 18.sp,
                 color = black,
                 modifier = Modifier.weight(1f)
@@ -165,8 +146,8 @@ fun SouthItemCard(index: Int, item: SouthernItem, purple: Color, green: Color, w
                 checked = checked,
                 onCheckedChange = {
                     checked = it
-                    if (it) SelectionManager.selectItem("southern", index)
-                    else SelectionManager.unselectItem("southern", index)
+                    if (it) SelectionManager.selectSpot(spotId) // Use global spot ID
+                    else SelectionManager.unselectSpot(spotId)
                 },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black

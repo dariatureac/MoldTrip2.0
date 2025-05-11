@@ -35,11 +35,6 @@ class NorthernActivity : ComponentActivity() {
     }
 }
 
-data class NorthernItem(
-    val imageRes: Int,
-    val textRes: Int
-)
-
 @Composable
 fun NorthernScreen() {
     val context = LocalContext.current
@@ -48,25 +43,12 @@ fun NorthernScreen() {
     val white = Color(ContextCompat.getColor(context, R.color.white))
     val black = Color(ContextCompat.getColor(context, R.color.black))
 
-    val items = listOf(
-        NorthernItem(R.drawable.northern1, R.string.northern_1_text),
-        NorthernItem(R.drawable.northern2, R.string.northern_2_text),
-        NorthernItem(R.drawable.northern3, R.string.northern_3_text),
-        NorthernItem(R.drawable.northern4, R.string.northern_4_text),
-        NorthernItem(R.drawable.northern5, R.string.northern_5_text),
-        NorthernItem(R.drawable.northern6, R.string.northern_6_text),
-        NorthernItem(R.drawable.northern7, R.string.northern_7_text),
-        NorthernItem(R.drawable.northern8, R.string.northern_8_text),
-        NorthernItem(R.drawable.northern9, R.string.northern_9_text),
-        NorthernItem(R.drawable.northern10, R.string.northern_10_text),
-    )
+    // Fetch spots related to the Northern region from the SpotsRepository
+    val items = SpotsRepository.spots.filter { spot ->
+        spot.id in 17..26 // Spot IDs for the Northern region (adjust these as necessary)
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
+    BackgroundWrapper {
         // Main image + region title
         Box(
             modifier = Modifier
@@ -75,8 +57,8 @@ fun NorthernScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.northern), // Change to the correct image
-                contentDescription = stringResource(R.string.northern_text),
+                painter = painterResource(id = R.drawable.northern),  // Change to northern region image
+                contentDescription = stringResource(R.string.northern_text),  // Change to northern text resource
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -94,11 +76,11 @@ fun NorthernScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items with checkboxes
-        items.forEachIndexed { index, item ->
-            NorthItemCard(
-                index = index,
-                item = item,
+        // Items with checkboxes (use global spot IDs)
+        items.forEach { spot ->
+            NorthernItemCard(
+                spotId = spot.id,  // Pass the global spot ID
+                spot = spot,
                 purple = purple,
                 green = green,
                 white = white,
@@ -122,16 +104,16 @@ fun NorthernScreen() {
         ) {
             Text(
                 text = "Next",
-                color = green
+                color = white
             )
         }
     }
 }
 
 @Composable
-fun NorthItemCard(index: Int, item: NorthernItem, purple: Color, green: Color, white: Color, black: Color) {
+fun NorthernItemCard(spotId: Int, spot: Spot, purple: Color, green: Color, white: Color, black: Color) {
     var checked by remember {
-        mutableStateOf(SelectionManager.isItemSelected("northern", index))
+        mutableStateOf(SelectionManager.isSpotSelected(spotId))  // Check if the spot is selected by its global ID
     }
 
     Column(
@@ -140,7 +122,7 @@ fun NorthItemCard(index: Int, item: NorthernItem, purple: Color, green: Color, w
             .padding(bottom = 16.dp)
     ) {
         Image(
-            painter = painterResource(id = item.imageRes),
+            painter = painterResource(id = spot.imageResId),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -155,7 +137,7 @@ fun NorthItemCard(index: Int, item: NorthernItem, purple: Color, green: Color, w
                 .padding(12.dp)
         ) {
             Text(
-                text = stringResource(id = item.textRes),
+                text = stringResource(id = spot.textResId),
                 fontSize = 18.sp,
                 color = black,
                 modifier = Modifier.weight(1f)
@@ -164,8 +146,8 @@ fun NorthItemCard(index: Int, item: NorthernItem, purple: Color, green: Color, w
                 checked = checked,
                 onCheckedChange = {
                     checked = it
-                    if (it) SelectionManager.selectItem("northern", index)
-                    else SelectionManager.unselectItem("northern", index)
+                    if (it) SelectionManager.selectSpot(spotId) // Use global spot ID
+                    else SelectionManager.unselectSpot(spotId)
                 },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black

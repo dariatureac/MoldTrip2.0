@@ -35,11 +35,6 @@ class ChisinauParksActivity : ComponentActivity() {
     }
 }
 
-data class ChisinauParksItem(
-    val imageRes: Int,
-    val textRes: Int
-)
-
 @Composable
 fun ChisinauParksScreen() {
     val context = LocalContext.current
@@ -48,25 +43,12 @@ fun ChisinauParksScreen() {
     val white = Color(ContextCompat.getColor(context, R.color.white))
     val black = Color(ContextCompat.getColor(context, R.color.black))
 
-    val items = listOf(
-        ChisinauParksItem(R.drawable.chisinau_parks_1, R.string.chisinau_parks_1_text),
-        ChisinauParksItem(R.drawable.chisinau_parks_2, R.string.chisinau_parks_2_text),
-        ChisinauParksItem(R.drawable.chisinau_parks_3, R.string.chisinau_parks_3_text),
-        ChisinauParksItem(R.drawable.chisinau_parks_4, R.string.chisinau_parks_4_text),
-        ChisinauParksItem(R.drawable.chisinau_parks_5, R.string.chisinau_parks_5_text),
-        ChisinauParksItem(R.drawable.chisinau_parks_6, R.string.chisinau_parks_6_text),
-        ChisinauParksItem(R.drawable.chisinau_parks_7, R.string.chisinau_parks_7_text),
-        ChisinauParksItem(R.drawable.chisinau_parks_8, R.string.chisinau_parks_8_text),
-        ChisinauParksItem(R.drawable.chisinau_parks_9, R.string.chisinau_parks_9_text),
-        ChisinauParksItem(R.drawable.chisinau_parks_10, R.string.chisinau_parks_10_text),
-    )
+    // Fetch spots related to Chisinau Parks from the SpotsRepository
+    val items = SpotsRepository.spots.filter { spot ->
+        spot.id in 36..45 // Spot IDs for Chisinau Parks (update these based on actual park IDs)
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
+    BackgroundWrapper {
         // Main image + region title
         Box(
             modifier = Modifier
@@ -75,13 +57,13 @@ fun ChisinauParksScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.chisinau),
-                contentDescription = stringResource(R.string.chisinau_text),
+                painter = painterResource(id = R.drawable.chisinau_parks), // You might want to change this image to one representing parks
+                contentDescription = stringResource(R.string.chisinau_parks_text), // Update the description if necessary
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
             Text(
-                text = stringResource(R.string.chisinau_text),
+                text = stringResource(R.string.chisinau_parks_text), // Update text for parks
                 fontSize = 24.sp,
                 color = Color.Black,
                 modifier = Modifier
@@ -94,10 +76,11 @@ fun ChisinauParksScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        items.forEachIndexed { index, item ->
+        // Items with checkboxes (use global spot IDs)
+        items.forEach { spot ->
             ChisinauParksItemCard(
-                index = index,
-                item = item,
+                spotId = spot.id,  // Pass the global spot ID
+                spot = spot,
                 purple = purple,
                 green = green,
                 white = white,
@@ -105,6 +88,7 @@ fun ChisinauParksScreen() {
             )
         }
 
+        // NEXT Button
         Button(
             onClick = {
                 context.startActivity(Intent(context, RegionsActivity::class.java))
@@ -120,16 +104,16 @@ fun ChisinauParksScreen() {
         ) {
             Text(
                 text = "Next",
-                color = green
+                color = white
             )
         }
     }
 }
 
 @Composable
-fun ChisinauParksItemCard(index: Int, item: ChisinauParksItem, purple: Color, green: Color, white: Color, black: Color) {
+fun ChisinauParksItemCard(spotId: Int, spot: Spot, purple: Color, green: Color, white: Color, black: Color) {
     var checked by remember {
-        mutableStateOf(SelectionManager.isItemSelected("chisinau", index))
+        mutableStateOf(SelectionManager.isSpotSelected(spotId))  // Check if the spot is selected by its global ID
     }
 
     Column(
@@ -138,7 +122,7 @@ fun ChisinauParksItemCard(index: Int, item: ChisinauParksItem, purple: Color, gr
             .padding(bottom = 16.dp)
     ) {
         Image(
-            painter = painterResource(id = item.imageRes),
+            painter = painterResource(id = spot.imageResId),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -153,7 +137,7 @@ fun ChisinauParksItemCard(index: Int, item: ChisinauParksItem, purple: Color, gr
                 .padding(12.dp)
         ) {
             Text(
-                text = stringResource(id = item.textRes),
+                text = stringResource(id = spot.textResId),
                 fontSize = 18.sp,
                 color = black,
                 modifier = Modifier.weight(1f)
@@ -162,8 +146,8 @@ fun ChisinauParksItemCard(index: Int, item: ChisinauParksItem, purple: Color, gr
                 checked = checked,
                 onCheckedChange = {
                     checked = it
-                    if (it) SelectionManager.selectItem("chisinau", index)
-                    else SelectionManager.unselectItem("chisinau", index)
+                    if (it) SelectionManager.selectSpot(spotId) // Use global spot ID
+                    else SelectionManager.unselectSpot(spotId)
                 },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black

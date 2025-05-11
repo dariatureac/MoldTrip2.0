@@ -35,11 +35,6 @@ class OrheiActivity : ComponentActivity() {
     }
 }
 
-data class OrheiItem(
-    val imageRes: Int,
-    val textRes: Int
-)
-
 @Composable
 fun OrheiScreen() {
     val context = LocalContext.current
@@ -48,19 +43,12 @@ fun OrheiScreen() {
     val white = Color(ContextCompat.getColor(context, R.color.white))
     val black = Color(ContextCompat.getColor(context, R.color.black))
 
-    val items = listOf(
-        OrheiItem(R.drawable.orhei1, R.string.orhei_1_text),
-        OrheiItem(R.drawable.orhei2, R.string.orhei_2_text),
-        OrheiItem(R.drawable.orhei3, R.string.orhei_3_text),
-        OrheiItem(R.drawable.orhei4, R.string.orhei_4_text),
-    )
+    // Fetch spots related to the Orhei region from the SpotsRepository
+    val items = SpotsRepository.spots.filter { spot ->
+        spot.id in 27..30 // Spot IDs for the Orhei region (adjust these as necessary)
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
+    BackgroundWrapper {
         // Main image + region title
         Box(
             modifier = Modifier
@@ -69,8 +57,8 @@ fun OrheiScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.orhei),
-                contentDescription = stringResource(R.string.orhei_text),
+                painter = painterResource(id = R.drawable.orhei),  // Change to Orhei region image
+                contentDescription = stringResource(R.string.orhei_text),  // Change to Orhei text resource
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -88,11 +76,11 @@ fun OrheiScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items with checkboxes
-        items.forEachIndexed { index, item ->
+        // Items with checkboxes (use global spot IDs)
+        items.forEach { spot ->
             OrheiItemCard(
-                index = index,
-                item = item,
+                spotId = spot.id,  // Pass the global spot ID
+                spot = spot,
                 purple = purple,
                 green = green,
                 white = white,
@@ -103,10 +91,7 @@ fun OrheiScreen() {
         // NEXT Button
         Button(
             onClick = {
-                // Navigate to RegionsActivity (or just finish and navigate to summary in RegionsActivity)
-                val intent = Intent(context, RegionsActivity::class.java)
-                context.startActivity(intent)
-                (context as? ComponentActivity)?.finish()  // Finish current activity
+                context.startActivity(Intent(context, RegionsActivity::class.java))
             },
             modifier = Modifier
                 .align(Alignment.End)
@@ -119,16 +104,16 @@ fun OrheiScreen() {
         ) {
             Text(
                 text = "Next",
-                color = green
+                color = white
             )
         }
     }
 }
 
 @Composable
-fun OrheiItemCard(index: Int, item: OrheiItem, purple: Color, green: Color, white: Color, black: Color) {
+fun OrheiItemCard(spotId: Int, spot: Spot, purple: Color, green: Color, white: Color, black: Color) {
     var checked by remember {
-        mutableStateOf(SelectionManager.isItemSelected("orhei", index))
+        mutableStateOf(SelectionManager.isSpotSelected(spotId))  // Check if the spot is selected by its global ID
     }
 
     Column(
@@ -137,7 +122,7 @@ fun OrheiItemCard(index: Int, item: OrheiItem, purple: Color, green: Color, whit
             .padding(bottom = 16.dp)
     ) {
         Image(
-            painter = painterResource(id = item.imageRes),
+            painter = painterResource(id = spot.imageResId),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -152,7 +137,7 @@ fun OrheiItemCard(index: Int, item: OrheiItem, purple: Color, green: Color, whit
                 .padding(12.dp)
         ) {
             Text(
-                text = stringResource(id = item.textRes),
+                text = stringResource(id = spot.textResId),
                 fontSize = 18.sp,
                 color = black,
                 modifier = Modifier.weight(1f)
@@ -161,8 +146,8 @@ fun OrheiItemCard(index: Int, item: OrheiItem, purple: Color, green: Color, whit
                 checked = checked,
                 onCheckedChange = {
                     checked = it
-                    if (it) SelectionManager.selectItem("orhei", index)
-                    else SelectionManager.unselectItem("orhei", index)
+                    if (it) SelectionManager.selectSpot(spotId) // Use global spot ID
+                    else SelectionManager.unselectSpot(spotId)
                 },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black

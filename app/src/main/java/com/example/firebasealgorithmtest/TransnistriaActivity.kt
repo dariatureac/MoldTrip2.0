@@ -35,11 +35,6 @@ class TransnistriaActivity : ComponentActivity() {
     }
 }
 
-data class TransnistriaItem(
-    val imageRes: Int,
-    val textRes: Int
-)
-
 @Composable
 fun TransnistriaScreen() {
     val context = LocalContext.current
@@ -48,20 +43,12 @@ fun TransnistriaScreen() {
     val white = Color(ContextCompat.getColor(context, R.color.white))
     val black = Color(ContextCompat.getColor(context, R.color.black))
 
-    val items = listOf(
-        TransnistriaItem(R.drawable.transnistria1, R.string.transnistria_1_text),
-        TransnistriaItem(R.drawable.transnistria2, R.string.transnistria_2_text),
-        TransnistriaItem(R.drawable.transnistria3, R.string.transnistria_3_text),
-        TransnistriaItem(R.drawable.transnistria4, R.string.transnistria_4_text),
-        TransnistriaItem(R.drawable.transnistria5, R.string.transnistria_5_text),
-    )
+    // Fetch spots related to the Transnistria region from the SpotsRepository
+    val items = SpotsRepository.spots.filter { spot ->
+        spot.id in 31..35 // Spot IDs for the Transnistria region (adjust these as necessary)
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
+    BackgroundWrapper {
         // Main image + region title
         Box(
             modifier = Modifier
@@ -70,8 +57,8 @@ fun TransnistriaScreen() {
                 .clip(RoundedCornerShape(8.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.transnistria), // Change to the correct image
-                contentDescription = stringResource(R.string.transnistria_text),
+                painter = painterResource(id = R.drawable.transnistria),  // Change to Transnistria region image
+                contentDescription = stringResource(R.string.transnistria_text),  // Change to Transnistria text resource
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -89,11 +76,11 @@ fun TransnistriaScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items with checkboxes
-        items.forEachIndexed { index, item ->
+        // Items with checkboxes (use global spot IDs)
+        items.forEach { spot ->
             TransnistriaItemCard(
-                index = index,
-                item = item,
+                spotId = spot.id,  // Pass the global spot ID
+                spot = spot,
                 purple = purple,
                 green = green,
                 white = white,
@@ -104,10 +91,7 @@ fun TransnistriaScreen() {
         // NEXT Button
         Button(
             onClick = {
-                // Navigate to RegionsActivity and pass selections
-                val intent = Intent(context, RegionsActivity::class.java)
-                context.startActivity(intent) // Start the RegionsActivity
-                (context as? ComponentActivity)?.finish()  // Finish current activity
+                context.startActivity(Intent(context, RegionsActivity::class.java))
             },
             modifier = Modifier
                 .align(Alignment.End)
@@ -120,16 +104,16 @@ fun TransnistriaScreen() {
         ) {
             Text(
                 text = "Next",
-                color = green
+                color = white
             )
         }
     }
 }
 
 @Composable
-fun TransnistriaItemCard(index: Int, item: TransnistriaItem, purple: Color, green: Color, white: Color, black: Color) {
+fun TransnistriaItemCard(spotId: Int, spot: Spot, purple: Color, green: Color, white: Color, black: Color) {
     var checked by remember {
-        mutableStateOf(SelectionManager.isItemSelected("transnistria", index))
+        mutableStateOf(SelectionManager.isSpotSelected(spotId))  // Check if the spot is selected by its global ID
     }
 
     Column(
@@ -138,7 +122,7 @@ fun TransnistriaItemCard(index: Int, item: TransnistriaItem, purple: Color, gree
             .padding(bottom = 16.dp)
     ) {
         Image(
-            painter = painterResource(id = item.imageRes),
+            painter = painterResource(id = spot.imageResId),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -153,7 +137,7 @@ fun TransnistriaItemCard(index: Int, item: TransnistriaItem, purple: Color, gree
                 .padding(12.dp)
         ) {
             Text(
-                text = stringResource(id = item.textRes),
+                text = stringResource(id = spot.textResId),
                 fontSize = 18.sp,
                 color = black,
                 modifier = Modifier.weight(1f)
@@ -162,8 +146,8 @@ fun TransnistriaItemCard(index: Int, item: TransnistriaItem, purple: Color, gree
                 checked = checked,
                 onCheckedChange = {
                     checked = it
-                    if (it) SelectionManager.selectItem("transnistria", index)
-                    else SelectionManager.unselectItem("transnistria", index)
+                    if (it) SelectionManager.selectSpot(spotId) // Use global spot ID
+                    else SelectionManager.unselectSpot(spotId)
                 },
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
                     checkedColor = black

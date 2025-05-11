@@ -1,30 +1,30 @@
 package com.example.firebasealgorithmtest
 
 object SelectionManager {
-    private val selectedItemsMap = mutableMapOf<String, MutableSet<Int>>() // Region -> indices
+    private val selectedSpotsSet = mutableSetOf<Int>() // Set to track selected spot IDs
 
-    fun selectItem(region: String, index: Int) {
-        val items = selectedItemsMap.getOrPut(region) { mutableSetOf() }
-        items.add(index)
+    // Add an ID to the selection
+    fun selectSpot(id: Int) {
+        selectedSpotsSet.add(id)
     }
 
-    fun unselectItem(region: String, index: Int) {
-        selectedItemsMap[region]?.remove(index)
+    // Remove an ID from the selection
+    fun unselectSpot(id: Int) {
+        selectedSpotsSet.remove(id)
     }
 
-    fun isItemSelected(region: String, index: Int): Boolean {
-        return selectedItemsMap[region]?.contains(index) == true
+    // Check if an ID is selected
+    fun isSpotSelected(id: Int): Boolean {
+        return selectedSpotsSet.contains(id)
     }
 
-    fun getSelectedItems(region: String): Set<Int> {
-        return selectedItemsMap[region] ?: emptySet()
+    // Get all selected spots as a set of IDs
+    fun getSelectedSpots(): Set<Int> {
+        return selectedSpotsSet
     }
 
-    fun getAllSelections(): Map<String, Set<Int>> {
-        return selectedItemsMap.mapValues { it.value.toSet() }
-    }
-
+    // Clear all selections
     fun clearAllSelections() {
-        selectedItemsMap.clear()
+        selectedSpotsSet.clear()
     }
 }

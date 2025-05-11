@@ -36,12 +36,7 @@ class RegionsActivity : ComponentActivity() {
 
 @Composable
 fun RegionsScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(8.dp)
-    ) {
+    BackgroundWrapper {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
@@ -153,18 +148,11 @@ fun RegionItemCard(item: RegionItem, modifier: Modifier = Modifier) {
 fun FinishButton() {
     val context = LocalContext.current
 
-    // Collect selected items from SelectionManager
-    val selectedItems = SelectionManager.getAllSelections()
-
     Button(
         onClick = {
-            // Create the intent to navigate to SummaryActivity
+            val selectedItems = SelectionManager.getSelectedSpots()
             val intent = Intent(context, SummaryActivity::class.java)
-
-            // Pass selected items as extra (ensure it's serializable)
-            intent.putExtra("selectedItems", HashMap(selectedItems))
-
-            // Start the activity
+            intent.putExtra("selectedItems", selectedItems.toIntArray())
             context.startActivity(intent)
         },
         modifier = Modifier
@@ -173,7 +161,7 @@ fun FinishButton() {
             .height(50.dp),
         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
             containerColor = colorResource(id = R.color.purple),
-            contentColor = colorResource(id = R.color.green)
+            contentColor = colorResource(id = R.color.white)
         ),
         shape = RoundedCornerShape(50)
     ) {
@@ -183,9 +171,3 @@ fun FinishButton() {
         )
     }
 }
-
-
-
-
-
-
