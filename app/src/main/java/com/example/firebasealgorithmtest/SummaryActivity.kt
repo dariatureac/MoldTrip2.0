@@ -8,7 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,16 +18,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import android.util.Log
+import kotlinx.coroutines.launch
 
 class SummaryActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val selectedIds = intent.getIntArrayExtra("selectedItems")?.toSet() ?: emptySet()
+        Log.d("SummaryActivity", "Received selectedIds: $selectedIds")
 
         setContent {
-            if (selectedIds.isNotEmpty()) {
-                SummaryScreen(selectedIds)
+            var allPlaces by remember { mutableStateOf<List<Place>>(emptyList()) }
+            var errorMessage by remember { mutableStateOf<String?>(null) }
+            val coroutineScope = rememberCoroutineScope()
+
+            // Загружаем все места из Firebase при старте
+            LaunchedEffect(Unit) {
+                coroutineScope.launch {
+                    try {
+                        val places = FirebaseUtils.loadAllPlaces()
+                        allPlaces = places
+                        Log.d("SummaryActivity", "Loaded places: ${places.map { it.id }}")
+                    } catch (e: Exception) {
+                        errorMessage = "Ошибка загрузки мест: ${e.message}"
+                        Log.e("SummaryActivity", "Error loading places: ${e.message}")
+                    }
+                }
+            }
+
+            if (errorMessage != null) {
+                Text(errorMessage!!)
+            } else if (selectedIds.isNotEmpty()) {
+                SummaryScreen(selectedIds, allPlaces)
             } else {
                 NoSelectionsScreen()
             }
@@ -36,7 +59,7 @@ class SummaryActivity : ComponentActivity() {
 }
 
 @Composable
-fun SummaryScreen(selectedIds: Set<Int>) {
+fun SummaryScreen(selectedIds: Set<Int>, allPlaces: List<Place>) {
     val context = LocalContext.current
     val purple = Color(ContextCompat.getColor(context, R.color.purple))
     val green = Color(ContextCompat.getColor(context, R.color.green))
@@ -44,6 +67,7 @@ fun SummaryScreen(selectedIds: Set<Int>) {
     val white = Color(ContextCompat.getColor(context, R.color.white))
 
     val selectedSpots = selectedIds.mapNotNull { SpotsRepository.getSpotById(it) }
+    Log.d("SummaryActivity", "Selected spots: ${selectedSpots.map { it.id }}")
 
     val centralSpots = selectedSpots.filter { it.id in 1..5 }
     val southernSpots = selectedSpots.filter { it.id in 6..16 }
@@ -51,6 +75,23 @@ fun SummaryScreen(selectedIds: Set<Int>) {
     val orheiSpots = selectedSpots.filter { it.id in 27..30 }
     val transnistriaSpots = selectedSpots.filter { it.id in 31..35 }
     val chisinauSpots = selectedSpots.filter { it.id in 36..66 }
+
+    // Мапим Spot на Place, используя данные из allPlaces
+    val selectedPlaces = selectedSpots.mapNotNull { spot ->
+        val matchingPlace = allPlaces.find { it.id.toInt() == spot.id }
+        if (matchingPlace != null) {
+            Place(
+                id = spot.id.toLong(),
+                name = stringResource(id = spot.textResId),
+                address = matchingPlace.address ?: "Unknown address",
+                latitude = matchingPlace.latitude, // Берём из matchingPlace
+                longitude = matchingPlace.longitude // Берём из matchingPlace
+            )
+        } else {
+            null // Если matchingPlace не найден, исключаем этот Spot
+        }
+    }
+    Log.d("SummaryActivity", "Selected places: ${selectedPlaces.map { it.id }}")
 
     BackgroundWrapper {
         Box(
@@ -101,7 +142,9 @@ fun SummaryScreen(selectedIds: Set<Int>) {
 
             Button(
                 onClick = {
-                    context.startActivity(Intent(context, MainActivity::class.java))
+                    val intent = Intent(context, MainActivity::class.java)
+                    intent.putExtra("selectedPlaceIds", selectedPlaces.map { it.id.toInt() }.toIntArray())
+                    context.startActivity(intent)
                 },
                 modifier = Modifier
                     .weight(1f)

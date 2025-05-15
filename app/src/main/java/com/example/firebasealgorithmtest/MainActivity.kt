@@ -8,7 +8,17 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -63,31 +73,33 @@ class MainActivity : ComponentActivity() {
             var routeDistance by remember { mutableStateOf(0.0) }
             var isLoading by remember { mutableStateOf(false) }
             var errorMessage by remember { mutableStateOf<String?>(null) }
-            var showMap by remember { mutableStateOf(false) }
             val coroutineScope = rememberCoroutineScope()
 
-            NavHost(navController = navController, startDestination = "main") {
-                composable("main") {
-                    MainScreen(
-                        places = selectedPlaces,
-                        route = routeList,
-                        routeDistance = routeDistance,
-                        isLoading = isLoading,
-                        errorMessage = errorMessage,
-                        onSelectPlacesClick = {
-                            navController.navigate("select_places")
-                        },
-                        onViewRouteOnMapClick = {
-                            navController.navigate("mapScreen")
-                        },
-                        onBuildRouteClick = {
-                            if (selectedPlaces.size < 2) {
-                                errorMessage = "Выберите как минимум 2 места для построения маршрута"
-                                return@MainScreen
+            // Load selected places and calculate route
+            LaunchedEffect(Unit) {
+                val selectedPlaceIds = intent.getIntArrayExtra("selectedPlaceIds")?.toList() ?: emptyList()
+                Log.d("MainActivity", "Received selectedPlaceIds: $selectedPlaceIds")
+                if (selectedPlaceIds.isNotEmpty()) {
+                    isLoading = true
+                    coroutineScope.launch {
+                        try {
+                            val places = loadPlacesFromFirebase()
+                            allPlaces = places
+                            val filteredPlaces = places.filter { it.id.toInt() in selectedPlaceIds }
+                            val userPlace = if (userLocation != null) {
+                                Place(
+                                    id = 0L,
+                                    name = "Ваше местоположение",
+                                    address = "Текущее местоположение",
+                                    latitude = userLocation!!.latitude,
+                                    longitude = userLocation!!.longitude
+                                )
+                            } else {
+                                null
                             }
-                            isLoading = true
-                            errorMessage = null
-                            coroutineScope.launch {
+                            selectedPlaces = if (userPlace != null) listOf(userPlace) + filteredPlaces else filteredPlaces
+                            Log.d("MainActivity", "Selected places: ${selectedPlaces.map { it.id }}")
+                            if (selectedPlaces.size >= 2) {
                                 loadDataFromFirebase(
                                     selectedPlaces = selectedPlaces,
                                     onRouteCalculated = { route, distance ->
@@ -101,42 +113,143 @@ class MainActivity : ComponentActivity() {
                                         isLoading = false
                                     }
                                 )
-                            }
-                        }
-                    )
-                }
-                composable("select_places") {
-                    PlaceSelectionScreen(
-                        allPlaces = allPlaces,
-                        onPlacesSelected = { newSelectedPlaces ->
-                            val updatedPlaces = if (userLocation != null) {
-                                val userPlace = Place(
-                                    id = 0L,
-                                    name = "Ваше местоположение",
-                                    address = "Текущее местоположение",
-                                    latitude = userLocation!!.latitude,
-                                    longitude = userLocation!!.longitude
-                                )
-                                listOf(userPlace) + newSelectedPlaces
                             } else {
-                                newSelectedPlaces
+                                errorMessage = "Выберите как минимум 2 места для построения маршрута"
+                                isLoading = false
                             }
-                            selectedPlaces = updatedPlaces
-                            navController.popBackStack()
-                        },
-                        onLoadPlaces = {
-                            coroutineScope.launch {
-                                loadPlacesFromFirebase(
-                                    onPlacesLoaded = { places ->
-                                        allPlaces = places
-                                    },
-                                    onError = { error ->
-                                        errorMessage = error
+                        } catch (e: Exception) {
+                            errorMessage = "Ошибка загрузки мест: ${e.message}"
+                            Log.e("MainActivity", "Error loading places: ${e.message}")
+                            isLoading = false
+                        }
+                    }
+                } else {
+                    errorMessage = "No places selected"
+                }
+            }
+
+            NavHost(navController = navController, startDestination = "main") {
+                composable("main") {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator()
+                            Text("Calculating route...")
+                        } else if (errorMessage != null) {
+                            Text(errorMessage!!, color = MaterialTheme.colorScheme.error)
+                        } else {
+                            // Кнопка "Build Route"
+                            Button(
+                                onClick = {
+                                    if (selectedPlaces.size >= 2) {
+                                        isLoading = true
+                                        errorMessage = null
+                                        coroutineScope.launch {
+                                            loadDataFromFirebase(
+                                                selectedPlaces = selectedPlaces,
+                                                onRouteCalculated = { route, distance ->
+                                                    routeList = route
+                                                    routeDistance = distance
+                                                },
+                                                onError = { error ->
+                                                    errorMessage = error
+                                                },
+                                                onLoadingFinished = {
+                                                    isLoading = false
+                                                }
+                                            )
+                                        }
+                                    } else {
+                                        errorMessage = "Выберите как минимум 2 места для построения маршрута"
                                     }
-                                )
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 16.dp),
+                                shape = MaterialTheme.shapes.medium
+                            ) {
+                                Text("Build Route", fontSize = 18.sp)
+                            }
+
+                            // Стильный список маршрута в колонку без иконок
+                            if (routeList.isNotEmpty()) {
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .background(MaterialTheme.colorScheme.surface)
+                                            .padding(16.dp)
+                                    ) {
+                                        Text(
+                                            text = "Route:",
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        routeList.forEachIndexed { index, place ->
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 4.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = "${index + 1}.",
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.Medium,
+                                                    modifier = Modifier
+                                                        .width(24.dp)
+                                                        .padding(end = 8.dp)
+                                                )
+                                                Text(
+                                                    text = place.name,
+                                                    fontSize = 16.sp,
+                                                    modifier = Modifier.weight(1f)
+                                                )
+                                            }
+                                            if (index < routeList.size - 1) {
+                                                Divider(
+                                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                                                    thickness = 1.dp,
+                                                    modifier = Modifier.padding(vertical = 4.dp)
+                                                )
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = "Distance: ${String.format("%.2f", routeDistance)} km",
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+
+                                // Кнопка "View on Map"
+                                Button(
+                                    onClick = {
+                                        navController.navigate("mapScreen")
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 16.dp),
+                                    shape = MaterialTheme.shapes.medium
+                                ) {
+                                    Text("View on Map", fontSize = 18.sp)
+                                }
                             }
                         }
-                    )
+                    }
                 }
                 composable("mapScreen") {
                     MapScreen(
@@ -175,13 +288,11 @@ class MainActivity : ComponentActivity() {
             return
         }
 
-        // Сначала пытаемся получить последнее известное местоположение
         try {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     val lat = location.latitude
                     val lon = location.longitude
-                    // Проверяем, не является ли местоположение заглушкой Googleplex
                     if (lat == 37.4219983 && lon == -122.084) {
                         Log.w("MainActivity", "Получено местоположение Googleplex, игнорируем")
                         userLocation = LatLng(47.0105, 28.8638)
@@ -217,7 +328,6 @@ class MainActivity : ComponentActivity() {
                 if (location != null) {
                     val lat = location.latitude
                     val lon = location.longitude
-                    // Проверяем, не является ли местоположение заглушкой Googleplex
                     if (lat == 37.4219983 && lon == -122.084) {
                         Log.w("MainActivity", "Получено местоположение Googleplex, игнорируем")
                         userLocation = LatLng(47.0105, 28.8638)
@@ -251,20 +361,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private suspend fun loadPlacesFromFirebase(
-        onPlacesLoaded: (List<Place>) -> Unit,
-        onError: (String) -> Unit
-    ) {
+    private suspend fun loadPlacesFromFirebase(): List<Place> {
         Log.d("FirebaseTest", "Загрузка мест из Firebase")
-        try {
+        return try {
             val places = FirebaseUtils.loadAllPlaces()
             Log.d("FirebaseTest", "Загружено мест: ${places.size}")
             places.forEach { place ->
                 Log.d("FirebaseTest", "Место: ${place.name}, ID: ${place.id}, Address: ${place.address}, Lat: ${place.latitude}, Lon: ${place.longitude}")
             }
-            onPlacesLoaded(places.sortedBy { it.id })
+            places.sortedBy { it.id }
         } catch (e: Exception) {
-            onError("Ошибка чтения мест: ${e.message}")
+            Log.e("FirebaseTest", "Ошибка чтения мест: ${e.message}")
+            emptyList()
         }
     }
 
@@ -285,26 +393,25 @@ class MainActivity : ComponentActivity() {
                 throw IllegalStateException("Местоположение пользователя не определено. Пожалуйста, предоставьте доступ к местоположению.")
             }
 
-            val start = selectedPlaces.firstOrNull { it.id == 0L } ?: run {
-                Log.e("FirebaseTest", "Местоположение пользователя не найдено в списке мест")
-                selectedPlaces.first()
-            }
-            Log.d("FirebaseTest", "Стартовая точка: ${start.name}")
+            // Извлекаем местоположение пользователя как фиксированную стартовую точку
+            val userPlace = selectedPlaces.firstOrNull { it.id == 0L }
+                ?: throw IllegalStateException("Местоположение пользователя не найдено в списке мест")
+            Log.d("FirebaseTest", "Стартовая точка: ${userPlace.name}")
 
-            if (selectedPlaces.size >= 2) {
-                val place1 = selectedPlaces[0]
-                val place2 = selectedPlaces[1]
-                val distance = algorithm.getDistance(place1, place2, distances)
-                Log.d("FirebaseTest", "Расстояние между ${place1.name} (id: ${place1.id}) и ${place2.name} (id: ${place2.id}): $distance км")
+            // Оставшиеся места для оптимизации
+            val remainingPlaces = selectedPlaces.filter { it.id != 0L }
+            if (remainingPlaces.size < 1) {
+                throw IllegalStateException("Выберите хотя бы одно место кроме местоположения")
             }
 
-            val route = algorithm.findOptimalRoute(selectedPlaces, start, distances)
-            Log.d("FirebaseTest", "Оптимальный маршрут: ${route.joinToString(" -> ") { it.name }}")
+            // Оптимизируем маршрут для оставшихся мест, начиная с userPlace
+            val optimizedRoute = listOf(userPlace) + algorithm.findOptimalRoute(remainingPlaces, userPlace, distances)
+            Log.d("FirebaseTest", "Оптимальный маршрут: ${optimizedRoute.joinToString(" -> ") { it.name }}")
 
-            val routeDistance = algorithm.calculateRouteDistance(route, distances)
+            val routeDistance = algorithm.calculateRouteDistance(optimizedRoute, distances)
             Log.d("FirebaseTest", "Длина маршрута: $routeDistance км")
 
-            onRouteCalculated(route, routeDistance)
+            onRouteCalculated(optimizedRoute, routeDistance)
         } catch (e: IllegalStateException) {
             onError("Не удалось построить маршрут: ${e.message}")
             Log.e("FirebaseTest", "Ошибка построения маршрута: ${e.message}")

@@ -10,15 +10,15 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun PlaceSelectionScreen(
-    allPlaces: List<Place>,
-    onPlacesSelected: (List<Place>) -> Unit,
-    onLoadPlaces: () -> Unit
+    selectedPlaces: List<Place>, // Изменён параметр с allPlaces на selectedPlaces
+    onPlacesSelected: (List<Place>) -> Unit, // Оставляем для совместимости, но не используем
+    onLoadPlaces: () -> Unit // Оставляем, но не используем, если места уже выбраны
 ) {
-    var selectedPlaces by remember { mutableStateOf(setOf<Place>()) }
     var isLoading by remember { mutableStateOf(false) }
 
+    // Загрузка мест только если список пуст (для обратной совместимости)
     LaunchedEffect(Unit) {
-        if (allPlaces.isEmpty()) {
+        if (selectedPlaces.isEmpty()) {
             isLoading = true
             onLoadPlaces()
             isLoading = false
@@ -32,63 +32,48 @@ fun PlaceSelectionScreen(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = "Выберите места для маршрута",
+            text = "Selected Places for Route",
             style = MaterialTheme.typography.headlineMedium
         )
 
         if (isLoading) {
             CircularProgressIndicator()
-            Text("Загрузка списка мест...")
-        } else if (allPlaces.isEmpty()) {
-            Text("Список мест пуст")
+            Text("Loading place list...")
+        } else if (selectedPlaces.isEmpty()) {
+            Text("No places selected. Please select places from region screens.")
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                itemsIndexed(allPlaces) { _, place ->
+                itemsIndexed(selectedPlaces) { _, place ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
-                        Row(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                                .padding(8.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(
-                                    text = place.name,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Text(
-                                    text = "ID: ${place.id}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Text(
-                                    text = "Address: ${place.address}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Text(
-                                    text = "Coords: (${place.latitude}, ${place.longitude})",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                            Checkbox(
-                                checked = place in selectedPlaces,
-                                onCheckedChange = { checked ->
-                                    selectedPlaces = if (checked) {
-                                        selectedPlaces + place
-                                    } else {
-                                        selectedPlaces - place
-                                    }
-                                }
+                            Text(
+                                text = place.name,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = "ID: ${place.id}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                text = "Address: ${place.address}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                text = "Coords: (${place.latitude}, ${place.longitude})",
+                                style = MaterialTheme.typography.bodySmall
                             )
                         }
                     }
@@ -96,11 +81,11 @@ fun PlaceSelectionScreen(
             }
             Button(
                 onClick = {
-                    onPlacesSelected(selectedPlaces.toList())
+                    onPlacesSelected(selectedPlaces) // Возвращаем текущий список без изменений
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Подтвердить выбор (${selectedPlaces.size} мест)")
+                Text("Confirm Selection (${selectedPlaces.size} places)")
             }
         }
     }
