@@ -18,7 +18,7 @@ class Algorithm {
                 cos(lat1Rad) * cos(lat2Rad) * sin(dLon / 2) * sin(dLon / 2)
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         val distance = EARTH_RADIUS_KM * c
-        Log.d("Algorithm", "Расстояние по координатам: lat1=$lat1, lon1=$lon1, lat2=$lat2, lon2=$lon2, distance=$distance км")
+        Log.d("Algorithm", "Distance by coordinates: lat1=$lat1, lon1=$lon1, lat2=$lat2, lon2=$lon2, distance=$distance км")
         return distance
     }
 
@@ -30,7 +30,7 @@ class Algorithm {
                 place1.latitude, place1.longitude,
                 place2.latitude, place2.longitude
             )
-            Log.d("Algorithm", "Расстояние (по координатам) между ${place1.name} (ID: ${place1.id}) и ${place2.name} (ID: ${place2.id}): $distance км")
+            Log.d("Algorithm", "Distance (on coordinates) between ${place1.name} (ID: ${place1.id}) и ${place2.name} (ID: ${place2.id}): $distance км")
             return distance
         }
 
@@ -77,7 +77,7 @@ class Algorithm {
             current = nearest
         }
 
-        Log.d("Algorithm", "Маршрут после Nearest Neighbor: ${route.joinToString(" -> ") { "${it.name} (ID: ${it.id})" }}")
+        Log.d("Algorithm", "Route after Nearest Neighbor: ${route.joinToString(" -> ") { "${it.name} (ID: ${it.id})" }}")
         return route
     }
 
